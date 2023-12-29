@@ -1,18 +1,16 @@
-import { Formik, Form, Field } from "formik";
-import "./Verifyaccount.css";
-import * as Yup from "yup";
-import pooldetails from "../pooldata.json";
 import {
-    CognitoUserPool,
-    CognitoUserAttribute,
     CognitoUser,
-    AuthenticationDetails
+    CognitoUserPool
 } from "amazon-cognito-identity-js";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
 import AWS from 'aws-sdk';
 import axios from 'axios';
+import { Form, Formik } from "formik";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import * as Yup from "yup";
+import pooldetails from "../pooldata.json";
+import "./Verifyaccount.css";
 //import * as AWS from "@aws-sdk/client-sns";
 
 // const SESConfig = {
@@ -29,10 +27,10 @@ const SESConfig = {
     apiVersion: "2010-12-01",
     accessKeyId: "AKIA4RE7FY6PYYZZQ6VQ",
     accessSecretKey: "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",
-    
+
 }
 
-const snsClient = new AWS.SNS({region: "us-east-1"});
+const snsClient = new AWS.SNS({ region: "us-east-1" });
 
 const Verifyaccount = () => {
 
@@ -66,24 +64,24 @@ const Verifyaccount = () => {
                 if (result == "SUCCESS") {
 
 
-                const api = 'https://5f0musvxee.execute-api.us-east-1.amazonaws.com/dev/subscribe?id='+username;
-                    
-                    axios
-                    .get(api, {
-                        headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        },
-                        crossDomain: true
-                    })
-                    .then((response) => {
-                        console.log("res:"+response);
-                        navigate("/signin");
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
+                    const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/dev/subscribe?id=' + username;
 
-                   
+                    axios
+                        .get(api, {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            },
+                            crossDomain: true
+                        })
+                        .then((response) => {
+                            console.log("res:" + response);
+                            navigate("/signin");
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+
+
                 } else {
                     const erroMessage = err.message;
                     toast.error(

@@ -1,17 +1,15 @@
-import "./Signup.css";
-import { Formik, Form, Field } from "formik";
-import * as Yup from "yup";
 import {
-  CognitoUserPool,
   CognitoUserAttribute,
-  CognitoUser,
-  AuthenticationDetails,
+  CognitoUserPool
 } from "amazon-cognito-identity-js";
-import pooldetails from "../pooldata.json";
+import axios from 'axios';
+import { Field, Form, Formik } from "formik";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
-import axios from 'axios'
+import * as Yup from "yup";
+import pooldetails from "../pooldata.json";
+import "./Signup.css";
 
 const Signup = () => {
   //Initialize instance with AWS cognito user pool data
@@ -66,26 +64,26 @@ const Signup = () => {
         if (err) {
           toast.error(err.message);
         }
-        else{
-        const api = 'https://8z9upjgji0.execute-api.us-east-1.amazonaws.com/dev/save-user-details';
-        const data = {
-          "register" : true,
-          "userType" : attributeValues.usertype.toString(),
-          "email" :  attributeValues.email,
-          "firstName" : attributeValues.firstname,
-          "lastName" : attributeValues.lastname,
-          "mobileNo" : attributeValues.mobileno
-        };
-        axios
-          .post(api, data)
-          .then((response) => {
-            console.log("res:"+response);
-            
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-          const userDetails=result.user;
+        else {
+          const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/dev/save-user-details';
+          const data = {
+            "register": true,
+            "userType": attributeValues.usertype.toString(),
+            "email": attributeValues.email,
+            "firstName": attributeValues.firstname,
+            "lastName": attributeValues.lastname,
+            "mobileNo": attributeValues.mobileno
+          };
+          axios
+            .post(api, data)
+            .then((response) => {
+              console.log("res:" + response);
+
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+          const userDetails = result.user;
           localStorage.setItem('username', userDetails.username);
 
           toast.success(
@@ -97,12 +95,12 @@ const Signup = () => {
       }
 
     );
-    
+
   };
 
 
   //Reference taken from https://formik.org/
-  
+
   return (
     <Formik
       initialValues={initialValues}

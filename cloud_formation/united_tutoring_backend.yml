@@ -4,7 +4,7 @@
 # Resource creation:                                                                                       
 # - Cognito User Pool                                                                                      
 # - Cognito App Client     
-# - 5 DynamoDB tables                                                                                       
+# - 5 DynamoDB tables                                          LambdaGetBookingSlotIn                                             
 # - 12 Lambda Functions   
 # - 1 EventBridge Rule                                                                                    
 # - 11 API gateway: resources and methods                                                                  
@@ -25,7 +25,6 @@
 
 ############################################################################################################
 AWSTemplateFormatVersion: "2010-09-09"
-
 Parameters:
   CognitoDomain:
       Type: String
@@ -33,87 +32,90 @@ Parameters:
       MaxLength: 63
       AllowedPattern: ^[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?$
       Description: Enter a string. Must be alpha numeric 3-63 in length.
-      Default: unitedtutoringusers
+      Default: unitedtutoringusers # Name of the Cognito User Pool Domain
 
+  region:
+    Type: String
+    Default: eu-north-1 # Region of the resources
   BucketName:
     Type: String
-    Default: united-tutoring-lambda
-  PDynamoDBAvailability:
+    Default: united-tutoring-lambda # Name of the S3 bucket where the lambda code is stored
+  PDynamoDBAvailability: # Name of the DynamoDB table for availability
     Type: String
     Default: availability
-  PDynamoDBBookingDetails:
+  PDynamoDBBookingDetails: # Name of the DynamoDB table for booking details
     Type: String
     Default: bookingdetails
-  PDynamoDBSlots:
+  PDynamoDBSlots: # Name of the DynamoDB table for slots
     Type: String
     Default: slots
-  PDynamoDBStudentDetails:
+  PDynamoDBStudentDetails: # Name of the DynamoDB table for student details
     Type: String
     Default: student-details
-  PDynamoDBTutorDetails:
+  PDynamoDBTutorDetails: # Name of the DynamoDB table for tutor details
     Type: String
     Default: tutor-details
-  PLambdaCronJob:
+  PLambdaCronJob: # Name of the Lambda function for cron job
     Type: String
     Default: united-tutoring-cronjob
-  PLambdaGetSlotDetails:
+  PLambdaGetSlotDetails: # Name of the Lambda function for get slot details
     Type: String
     Default: united-tutoring-getslotdetails
-  PLambdaSaveAvailability:
+  PLambdaSaveAvailability: # Name of the Lambda function for save availability
     Type: String
     Default: united-tutoring-save-availability
-  PLambdaGetBookingSlotInPending:
+  PLambdaGetBookingSlotInPending: # Name of the Lambda function for get booking slot in pending
     Type: String
     Default: united-tutoring-getBookingSlotInPending
-  PLambdaGetProfileImg:
+  PLambdaGetProfileImg: # Name of the Lambda function for get profile image
     Type: String
     Default: united-tutoring-get-profile-img
-  PLambdaSaveProfileImg:
+  PLambdaSaveProfileImg: # Name of the Lambda function for save profile image
     Type: String
     Default: united-tutoring-save-profile-img
-  PLambdasSaveUserDetails:
+  PLambdasSaveUserDetails: # Name of the Lambda function for save user details
     Type: String
     Default: united-tutoring-save-user-details
-  PLambdaUpdateRequest:
+  PLambdaUpdateRequest: # Name of the Lambda function for update request
     Type: String
     Default: united-tutoring-updateRequest
-  PLambdaGetTutorBookings:
+  PLambdaGetTutorBookings: # Name of the Lambda function for get tutor bookings
     Type: String
     Default: united-tutoring-get-tutor-bookings
-  PLambdaSubscribeForEmailNotification:
+  PLambdaSubscribeForEmailNotification: # Name of the Lambda function for subscribe for email notification
     Type: String
     Default: united-tutoring-subscribeForEmailNotification
-  PLambdaGetUserDetails:
+  PLambdaGetUserDetails: # Name of the Lambda function for get user details
     Type: String
     Default: united-tutoring-get-user-details
-  PLambdaSaveBookingDetails:
+  PLambdaSaveBookingDetails: # Name of the Lambda function for save booking details
     Type: String
     Default: united-tutoring-savebookingdetails
-  PCronJobRule:
+  PCronJobRule: # Name of the EventBridge Rule for cron job
     Type: String
     Default: united-tutoring-cron-job-rule
 
-Resources:
-  UserPool:
-    Type: "AWS::Cognito::UserPool"
+Resources: # Resources to be created
+  UserPool:  # Cognito User Pool
+    Type: "AWS::Cognito::UserPool" # Type of resource
     
-    Properties:
-      UsernameConfiguration: 
-        CaseSensitive: false
-      Schema:
-        - Name: given_name
+    Properties: # Properties of the resource
+      UsernameConfiguration:  # Username configuration
+        CaseSensitive: false # Username is not case sensitive
+      Schema: # Schema of the user pool
+        - Name: given_name   
           AttributeDataType: String
-          DeveloperOnlyAttribute: false
-          Mutable: true
-          Required: true
+          DeveloperOnlyAttribute: false  
+          Mutable: true # Attribute can be changed
+          Required: true # Attribute is required
           StringAttributeConstraints:
             MinLength: "0"
             MaxLength: "2048"
-        - Name: family_name
+        - Name: family_name # Attribute name
           AttributeDataType: String
           DeveloperOnlyAttribute: false
-          Mutable: true
-          Required: true
+          Mutable: true 
+          Required: true 
           StringAttributeConstraints:
             MinLength: "0"
             MaxLength: "2048"
@@ -143,92 +145,92 @@ Resources:
               MaxLength: "2048"
       AutoVerifiedAttributes:
         - email
-      UserPoolName: !Sub ${CognitoDomain}-user-pool
+      UserPoolName: !Sub ${CognitoDomain}-user-pool # Name of the user pool
       VerificationMessageTemplate:
-        DefaultEmailOption: CONFIRM_WITH_CODE
+        DefaultEmailOption: CONFIRM_WITH_CODE # Default email option
 
 
-  UserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
+  UserPoolClient: # Cognito App Client
+    Type: AWS::Cognito::UserPoolClient # Type of resource
     Properties:
-      UserPoolId: !Ref UserPool 
-      AllowedOAuthFlowsUserPoolClient: true
-      GenerateSecret: false
+      UserPoolId: !Ref UserPool  # Reference to the user pool
+      AllowedOAuthFlowsUserPoolClient: true # OAuth flow is enabled
+      GenerateSecret: false  
       CallbackURLs:
-        - http://localhost:3000
-      AllowedOAuthFlows:
-        - code
-        - implicit
-      AllowedOAuthScopes:
-        - openid
-      SupportedIdentityProviders:
-        - COGNITO
+        - http://localhost:3000  # Callback URL
+      AllowedOAuthFlows: # OAuth flows enabled
+        - code # Authorization code grant flow
+        - implicit # Implicit grant flow
+      AllowedOAuthScopes: # OAuth scopes enabled
+        - openid # OpenID Connect scope
+      SupportedIdentityProviders: # Identity providers supported
+        - COGNITO # Cognito user pool
 
-  UserPoolDomain:
-    Type: AWS::Cognito::UserPoolDomain
-    Properties:
-      Domain: !Ref CognitoDomain
-      UserPoolId: !Ref UserPool
+  UserPoolDomain: # Cognito User Pool Domain
+    Type: AWS::Cognito::UserPoolDomain # Type of resource
+    Properties: # Properties of the resource
+      Domain: !Ref CognitoDomain # Name of the domain
+      UserPoolId: !Ref UserPool # Reference to the user pool
       
 
-  LambdaCronJob:
-      Type: AWS::Lambda::Function
-      Properties:
-        FunctionName: !Ref PLambdaCronJob
-        Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/cronjob-role
-        Code:
-          S3Bucket: !Ref BucketName
-          S3Key: cronjob.zip
-        Runtime: nodejs12.x
-        Timeout: 5
-        TracingConfig:
-          Mode: Active
+  LambdaCronJob: # Lambda function for cron job
+      Type: AWS::Lambda::Function # Type of resource
+      Properties: # Properties of the resource
+        FunctionName: !Ref PLambdaCronJob # Name of the function
+        Handler: index.handler # Handler of the function
+        Role: arn:aws:iam::835032380954:role/cronjob-role # Role of the function
+        Code: # Code of the function
+          S3Bucket: !Ref BucketName # Reference to the S3 bucket
+          S3Key: cronjob.zip # Name of the zip file
+        Runtime: nodejs18.x # Runtime of the function
+        Timeout: 5 # Timeout of the function
+        TracingConfig: # Tracing configuration of the function
+          Mode: Active  # Tracing is enabled
     
   LambdaGetSlotDetails:
       Type: AWS::Lambda::Function
       Properties:
         FunctionName: !Ref PLambdaGetSlotDetails
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: getslotdetails.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
 
-  LambdaGetSlotDetailsPermission:
-    Type: 'AWS::Lambda::Permission'
-    Properties:
-      Action: 'lambda:invokeFunction'
-      FunctionName:
-        'Fn::GetAtt':
-          - LambdaGetSlotDetails
-          - Arn
-      Principal: apigateway.amazonaws.com
-      SourceArn:
-        'Fn::Join':
-          - ''
-          - - 'arn:aws:execute-api:'
-            - Ref: 'AWS::Region'
-            - ':'
-            - Ref: 'AWS::AccountId'
-            - ':'
-            - Ref: UnitedTutoringAPIs
-            - /*/POST/get-availability
+  LambdaGetSlotDetailsPermission: # Permission for the lambda function
+    Type: 'AWS::Lambda::Permission' # Type of resource
+    Properties:  # Properties of the resource
+      Action: 'lambda:invokeFunction' # Action to be performed
+      FunctionName: # Reference to the lambda function
+        'Fn::GetAtt': # Reference to the lambda function
+          - LambdaGetSlotDetails # Name of the lambda function
+          - Arn # ARN of the lambda function
+      Principal: apigateway.amazonaws.com # Principal of the permission
+      SourceArn: # ARN of the source
+        'Fn::Join': # Join the strings
+          - '' # Joining character
+          - - 'arn:aws:execute-api:' # ARN of the API gateway
+            - Ref: 'AWS::Region' # Region of the API gateway
+            - ':' # ARN of the API gateway
+            - Ref: 'AWS::AccountId' # Account ID of the API gateway
+            - ':' # ARN of the API gateway
+            - Ref: UnitedTutoringAPIs # Reference to the API gateway
+            - /*/POST/get-availability # ARN of the API gateway
 
   LambdaSaveAvailability:
       Type: AWS::Lambda::Function
       Properties:
         FunctionName: !Ref PLambdaSaveAvailability
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: save-availability.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -258,11 +260,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaGetBookingSlotInPending
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: getBookingSlotInPending.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -292,11 +294,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaGetProfileImg
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-s3
+        Role: arn:aws:iam::835032380954:role/role-s3
         Code:
           S3Bucket: !Ref BucketName
           S3Key: get-profile-img.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -326,11 +328,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaSaveProfileImg
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-s3
+        Role: arn:aws:iam::835032380954:role/role-s3
         Code:
           S3Bucket: !Ref BucketName
           S3Key: save-profile-img.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -360,11 +362,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdasSaveUserDetails
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: save-user-details.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -394,11 +396,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaUpdateRequest
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: updateRequest.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -428,11 +430,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaGetTutorBookings
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: get-tutor-bookings.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -462,11 +464,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaSubscribeForEmailNotification
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/SNStest-role-072qricj
+        Role: arn:aws:iam::835032380954:role/SNStest-role-072qricj
         Code:
           S3Bucket: !Ref BucketName
           S3Key: subscribeForEmailNotification.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -496,11 +498,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaGetUserDetails
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: get-user-details.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active
@@ -530,11 +532,11 @@ Resources:
       Properties:
         FunctionName: !Ref PLambdaSaveBookingDetails
         Handler: index.handler
-        Role: arn:aws:iam::861474768799:role/service-role/role-dynamodb
+        Role: arn:aws:iam::835032380954:role/role-dynamodb
         Code:
           S3Bucket: !Ref BucketName
           S3Key: savebookingdetails.zip
-        Runtime: nodejs12.x
+        Runtime: nodejs18.x
         Timeout: 5
         TracingConfig:
           Mode: Active

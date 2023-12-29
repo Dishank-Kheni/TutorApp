@@ -1,9 +1,9 @@
-import { Table, Space, Button, Typography, Spin, Tag, Tooltip, message, List } from "antd";
-import {CheckCircleTwoTone, CloseCircleTwoTone} from '@ant-design/icons'
+import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
+import { Spin, Table, Tag, Tooltip, Typography, message } from "antd";
 import axios from "axios";
 
-import { useEffect, useState } from "react"
-import { GET_TUTOR_BOOKINGS, UPDATE_BOOKING } from "../../apis/Tutor";
+import { useEffect, useState } from "react";
+import { UPDATE_BOOKING } from "../../apis/Tutor";
 
 const { Column, ColumnGroup } = Table;
 const { Title } = Typography
@@ -23,7 +23,7 @@ export default function BookingDetails(params) {
         var config = {
             method: 'get',
             // url: GET_TUTOR_BOOKINGS + '?id=' + localStorage.getItem('username'),
-            url: 'https://8z9upjgji0.execute-api.us-east-1.amazonaws.com/dev/get-tutor-bookings?id=' + localStorage.getItem('username'),
+            url: 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/dev/get-tutor-bookings?id=' + localStorage.getItem('username'),
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -37,14 +37,14 @@ export default function BookingDetails(params) {
                 var pendings = [];
                 await response.data?.Bookings.map((booking) => {
                     if (booking.bookingStatus === 'REJECT') {
-                        rejecteds = [...rejecteds,booking];
+                        rejecteds = [...rejecteds, booking];
                         // setRejectedBookings([...rejectedBookings, booking])
                     } else if (booking.bookingStatus === 'CONFIRM') {
-                        confirms = [...confirms,booking]
+                        confirms = [...confirms, booking]
                         // console.log(booking,'confirm');
                         // setConfirmBookings([...confirmBookings, booking])
                     } else if (booking.bookingStatus === 'PENDING') {
-                        pendings = [...pendings,booking]
+                        pendings = [...pendings, booking]
                         // console.log(pendingBookings);
                         // setPendingBookings([...pendingBookings, booking])
                     }
@@ -69,16 +69,16 @@ export default function BookingDetails(params) {
             "studentId": record.studentId,
             "slotId": record.slotId,
             "action": "CONFIRM"
-          });
+        });
 
-          var config = {
+        var config = {
             method: 'post',
             url: UPDATE_BOOKING,
-            headers: { 
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            data : data
-          };
+            data: data
+        };
 
         axios(config)
             .then(function (response) {
@@ -89,11 +89,11 @@ export default function BookingDetails(params) {
             .catch(function (error) {
                 loadBookings();
                 console.log(error);
-            }).finally(()=>{
+            }).finally(() => {
                 setGetProcess(false);
             });
     }
-    
+
     function rejectBooking(record) {
         setGetProcess(true);
 
@@ -103,16 +103,16 @@ export default function BookingDetails(params) {
             "studentId": record.studentId,
             "slotId": record.slotId,
             "action": "REJECT"
-          });
+        });
 
-          var config = {
+        var config = {
             method: 'post',
             url: UPDATE_BOOKING,
-            headers: { 
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            data : data
-          };
+            data: data
+        };
 
         axios(config)
             .then(function (response) {
@@ -123,7 +123,7 @@ export default function BookingDetails(params) {
             .catch(function (error) {
                 loadBookings();
                 console.log(error);
-            }).finally(()=>{
+            }).finally(() => {
                 setGetProcess(false);
             });
     }
@@ -158,13 +158,13 @@ export default function BookingDetails(params) {
                                 render={(_, record) => {
                                     return (
                                         <>
-                                        <Tooltip title="confirm">
-                                           <CheckCircleTwoTone onClick={() => confirmBooking(record)} style={{ fontSize: '150%'}} twoToneColor="#52c41a" />
-                                        </Tooltip>
-                                        <Tooltip title="reject">
-                                        <CloseCircleTwoTone onClick={ () => rejectBooking(record)} style={{ fontSize: '150%', marginLeft:'15%'}} twoToneColor="#d90909" />
-                                     </Tooltip>
-                                     </>
+                                            <Tooltip title="confirm">
+                                                <CheckCircleTwoTone onClick={() => confirmBooking(record)} style={{ fontSize: '150%' }} twoToneColor="#52c41a" />
+                                            </Tooltip>
+                                            <Tooltip title="reject">
+                                                <CloseCircleTwoTone onClick={() => rejectBooking(record)} style={{ fontSize: '150%', marginLeft: '15%' }} twoToneColor="#d90909" />
+                                            </Tooltip>
+                                        </>
                                     )
                                 }}
                             />

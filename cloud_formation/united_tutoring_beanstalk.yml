@@ -38,7 +38,7 @@ Resources:
     Properties:
       EnvironmentName: !Join ["-", [!Ref AppName, "unitedtutoring"]]
       ApplicationName: !Ref Application
-      SolutionStackName: "64bit Amazon Linux 2 v3.4.17 running Docker"
+      SolutionStackName: "64bit Amazon Linux 2 v6.0.4 running Docker"
       Tier:
         Name: WebServer
         Type: Standard
