@@ -1,18 +1,12 @@
-import "./Profile.css";
-import { Formik, Form, Field } from "formik";
-import * as Yup from "yup";
-import CreatableSelect from 'react-select/creatable';
-import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Form, Formik } from "formik";
+import React, { useEffect, useState } from 'react';
+import CreatableSelect from 'react-select/creatable';
+import * as Yup from "yup";
+import "./Profile.css";
 //https://react-select.com/home
-import {
-  CognitoUserPool,
-  CognitoUserAttribute,
-  CognitoUser,
-  AuthenticationDetails
-} from "amazon-cognito-identity-js";
-import pooldetails from "../usermanagement/pooldata.json";
-import { ConsoleSqlOutlined } from "@ant-design/icons";
+
+
 
 
 
@@ -55,7 +49,7 @@ const TutorForm = ({ values,
   return (
     <div>
       <h5>Tutor Details</h5>
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <div className="form-group ">
           <label>Skills</label>
           {/* <Field
@@ -108,7 +102,7 @@ const TutorForm = ({ values,
             type="submit"
             className="btn btn-primary"
             disabled={!(dirty && isValid)}
-            onSubmit={handleSubmit}
+          // onSubmit={handleSubmit}
           >
             Submit Tutor
           </button>
@@ -144,7 +138,7 @@ const StudentForm = ({ values,
   return (
     <div>
       <h5>Student Details</h5>
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <div className="form-group ">
           <label>Courses</label>
           <CreatableSelect
@@ -222,7 +216,7 @@ const StudentForm = ({ values,
             type="submit"
             className="btn btn-primary"
             disabled={!(dirty && isValid)}
-            onSubmit={handleSubmit}
+          // onSubmit={handleSubmit}
           >
             Submit Student
           </button>
@@ -410,7 +404,7 @@ const Profile = () => {
   useEffect(() => {
 
     //This API is being called to retrieve profile image on page load.  
-    const api = 'https://41bsajs9hj.execute-api.us-east-1.amazonaws.com/dev/get-profile-img?id=' + localStorage.getItem('username');
+    const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Production/get-profile-img?id=' + localStorage.getItem('username');
     axios
       .get(api, {
         headers: {
@@ -435,74 +429,74 @@ const Profile = () => {
       "id": localStorage.getItem('username'),
       "userType": localStorage.getItem('userType')
     });
-    
+
     var config = {
       method: 'post',
-      url: 'https://41bsajs9hj.execute-api.us-east-1.amazonaws.com/dev/get-user-details',
-      headers: { 
+      url: 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Production/get-user-details',
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
-      data : data
+      data: data
     };
-    
+
 
     axios(config)
-    .then(function (response) {
-      console.log(response.data);
-      console.log(JSON.stringify(response.data));
-      
-      if(localStorage.getItem("tutor")){
+      .then(function (response) {
+        console.log(response.data);
+        console.log(JSON.stringify(response.data));
 
-      tutorInitialValues.desc = response.data.expdesc;
-      tutorInitialValues.fieldExperience = parseInt(response.data.expyears);
-      let skillsString = response.data.skills;
-      if (skillsString) {
-        skillvalues=[];
+        if (localStorage.getItem("tutor")) {
 
-        let skiilArray = skillsString.split(",");
+          tutorInitialValues.desc = response.data.expdesc;
+          tutorInitialValues.fieldExperience = parseInt(response.data.expyears);
+          let skillsString = response.data.skills;
+          if (skillsString) {
+            skillvalues = [];
 
-        for (let index = 0; index < skiilArray.length; index++) {
+            let skiilArray = skillsString.split(",");
 
-          let skillStringJson = { value: skiilArray[index], label: skiilArray[index].toString().toUpperCase() };
-    
-          skillvalues.push(skillStringJson);
+            for (let index = 0; index < skiilArray.length; index++) {
+
+              let skillStringJson = { value: skiilArray[index], label: skiilArray[index].toString().toUpperCase() };
+
+              skillvalues.push(skillStringJson);
+            }
+            console.log("Skills are");
+            console.log(skillvalues);
+            setSkills(skillvalues);
+          }
+
+          console.log("After retrieving user skills ");
+          console.log(skillvalues);
         }
-        console.log("Skills are");
-        console.log(skillvalues);
-        setSkills(skillvalues);
-      }
-      
-      console.log("After retrieving user skills ");
-      console.log(skillvalues);
-    }
 
-    if(localStorage.getItem("student")){
-      coursesValue=[];  
-      studentInitialValues.university=response.data.university;
-      studentInitialValues.program=response.data.program;
-      studentInitialValues.startYear=response.data.startyear;
-      studentInitialValues.endYear=response.data.endyear;
+        if (localStorage.getItem("student")) {
+          coursesValue = [];
+          studentInitialValues.university = response.data.university;
+          studentInitialValues.program = response.data.program;
+          studentInitialValues.startYear = response.data.startyear;
+          studentInitialValues.endYear = response.data.endyear;
 
-      let courseString = response.data.courses;
-      let courseArray = courseString.split(",");
+          let courseString = response.data.courses;
+          let courseArray = courseString.split(",");
 
-      for (let index = 0; index < courseArray.length; index++) {
+          for (let index = 0; index < courseArray.length; index++) {
 
-        let courseStringJson = { value: courseArray[index], label: courseArray[index].toString().toUpperCase() };
-       
-        coursesValue.push(courseStringJson);
-      }
-      setCourses(coursesValue);
-      
-    }
+            let courseStringJson = { value: courseArray[index], label: courseArray[index].toString().toUpperCase() };
+
+            coursesValue.push(courseStringJson);
+          }
+          setCourses(coursesValue);
+
+        }
 
 
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-    
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
 
 
   }, [])
@@ -520,7 +514,7 @@ const Profile = () => {
     console.log(values.fieldExperience)
     console.log("Skill string is");
     console.log(skillStr);
-    const api = 'https://41bsajs9hj.execute-api.us-east-1.amazonaws.com/dev/save-user-details';
+    const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Production/save-user-details';
     const data = {
       "userType": localStorage.getItem('userType'),
       "email": localStorage.getItem('username'),
@@ -552,7 +546,7 @@ const Profile = () => {
       courseStr = courseStr + course.value + ",";
     });
     courseStr = courseStr.slice(0, -1);
-    const api = 'https://41bsajs9hj.execute-api.us-east-1.amazonaws.com/dev/save-user-details';
+    const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Production/save-user-details';
     const data = {
       "userType": localStorage.getItem('userType'),
       "email": localStorage.getItem('username'),
@@ -581,7 +575,7 @@ const Profile = () => {
 
   const generalSubmit = (values) => {
     console.log(profilePic)
-    const api = 'https://41bsajs9hj.execute-api.us-east-1.amazonaws.com/dev/save-profile-img';
+    const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Production/save-profile-img';
     const data = {
       "file": profilePic,
       "email": localStorage.getItem('username')

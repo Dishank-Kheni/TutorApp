@@ -23,7 +23,7 @@ export default function BookingDetails(params) {
         var config = {
             method: 'get',
             // url: GET_TUTOR_BOOKINGS + '?id=' + localStorage.getItem('username'),
-            url: 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/dev/get-tutor-bookings?id=' + localStorage.getItem('username'),
+            url: 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Production/get-tutor-bookings?id=' + localStorage.getItem('username'),
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }

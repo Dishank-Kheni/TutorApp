@@ -47,7 +47,7 @@ const Signup = () => {
         Value: attributeValues.mobileno,
       }),
       new CognitoUserAttribute({
-        Name: "custom:user_type",
+        Name: "custom:userType",
         Value: attributeValues.usertype.toString(),
       }),
     ];
@@ -60,7 +60,7 @@ const Signup = () => {
 
 
       function (err, result) {
-
+        console.log("result:" + result + "err:" + err);
         if (err) {
           toast.error(err.message);
         }
@@ -72,7 +72,7 @@ const Signup = () => {
             "email": attributeValues.email,
             "firstName": attributeValues.firstname,
             "lastName": attributeValues.lastname,
-            "mobileNo": attributeValues.mobileno
+            "mobileNo": attributeValues.mobileno                  
           };
           axios
             .post(api, data)

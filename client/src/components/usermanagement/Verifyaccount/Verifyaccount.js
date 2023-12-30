@@ -30,7 +30,7 @@ const SESConfig = {
 
 }
 
-const snsClient = new AWS.SNS({ region: "us-east-1" });
+const snsClient = new AWS.SNS({ region: "eu-north-1" });
 
 const Verifyaccount = () => {
 

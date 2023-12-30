@@ -30,15 +30,20 @@ const Tutor = (props) => {
   const navigate = useNavigate();
 
   const onChangeDate = (date, dateString) => {
+    console.log('Selected date:', dateString);
     requestData.date = dateString;
   };
 
   const onChangeTime = (time, timeString) => {
+    console.log('Selected times:', timeString);
     requestData.startTime = timeString[0]
     requestData.endTime = timeString[1]
   };
 
-  const onSubmitHandle = () => {
+  const onSubmitHandle = (e) => {
+    // e.preventDefault();
+    console.log('Submit button clicked');
+    console.log(requestData);
     requestData.id = localStorage.getItem('username');
     if (requestData.date && requestData.id && requestData.startTime && requestData.endTime) {
 
@@ -55,40 +60,46 @@ const Tutor = (props) => {
 
       axios(config)
         .then(function (response) {
+          console.log('success')
           console.log(JSON.stringify(response.data));
-          navigate('availability')
+          // navigate('availability')
         })
         .catch(function (error) {
+          console.log('error')
           console.log(error);
         }).finally(function () {
+          console.log('finally')
           setSubmitProcess(false);
         })
 
-      setSubmitProcess(true)
+      // setSubmitProcess(true)
       setRequestError(false)
     } else {
-      setRequestError(true)
+      // setRequestError(true)
     }
   }
 
   return (
     <>
-      <section style={{ textAlign: 'center' }}>
-        <Title level={2}>Enter your availability</Title>
-        <section>
-          <Space direction="vertical" size={12}>
-            <DatePicker disabledDate={(current) => {
-              return moment().add(-1, 'days') >= current ||
-                moment().add(1, 'month') <= current;
-            }} format={'DD-MM-YYYY'} onChange={onChangeDate} />
-          </Space>
-          <TimePicker.RangePicker format={'HH:mm'} onChange={onChangeTime} />
+      <form>
+        <section style={{ textAlign: 'center' }}>
+          <Title level={2}>Enter your availability</Title>
+          <section>
+            <Space direction="vertical" size={12}>
+              <DatePicker disabledDate={(current) => {
+                return moment().add(-1, 'days') >= current ||
+                  moment().add(1, 'month') <= current;
+              }} format={'DD-MM-YYYY'} onChange={onChangeDate} />
+            </Space>
+            <TimePicker.RangePicker format={'HH:mm'} onChange={onChangeTime} />
+          </section>
+          <section style={{ marginTop: '2.5%' }}>
+            <Button type='primary' htmlType='submit' onClick={() => onSubmitHandle} loading={submitProcess}> Submit </Button>
+            <Button style={{ marginLeft: '2.5%' }} type='primary' onClick={() => navigate('availability')}> See All Availabilities </Button>
+          </section>
         </section>
-        <section style={{ marginTop: '2.5%' }}>
-          <Button type='primary' onClick={onSubmitHandle} loading={submitProcess}> Submit </Button>
-          <Button style={{ marginLeft: '2.5%' }} type='primary' onClick={() => navigate('availability')}> See All Availabilities </Button>
-        </section>
-      </section>
+      </form>
+
     </>
   );
 

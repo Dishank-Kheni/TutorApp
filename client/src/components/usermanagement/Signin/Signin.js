@@ -43,7 +43,7 @@ const Signin = ( props ) => {
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function (result) {
         //get user type
-        var userType = result.idToken.payload["custom:user_type"];
+        var userType = result.idToken.payload["custom:userType"];
         localStorage.setItem('userType',userType);
         if(userType.indexOf(',')!=-1){
           localStorage.setItem('tutor', "tutor");
