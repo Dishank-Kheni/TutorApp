@@ -65,7 +65,7 @@ const Signup = () => {
           toast.error(err.message);
         }
         else {
-          const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/dev/save-user-details';
+          const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Pro/save-user-details';
           const data = {
             "register": true,
             "userType": attributeValues.usertype.toString(),

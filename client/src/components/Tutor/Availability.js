@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 
+import { Button, List, Spin, Typography } from 'antd';
 import { useEffect, useState } from 'react';
-import { Typography, Spin, List, Button } from 'antd'
 
 
-import { GET_AVAILABILITY, SAVE_AVAILABILITY, SAVE_SLOT_BOOKING, GET_BOOKING_SLOT_PENDING_STATUS } from '../../apis/Availability';
 import { useLocation } from 'react-router-dom';
+import { GET_AVAILABILITY, GET_BOOKING_SLOT_PENDING_STATUS, SAVE_SLOT_BOOKING } from '../../apis/Availability';
 
 
 const { Title } = Typography;
@@ -41,13 +41,14 @@ export default function Availability(props) {
         var config = {
             method: 'post',
             url: GET_AVAILABILITY,
+            // withCredentials: false,
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             data: data
         };
 
-        
+
         setGetProcess(true);
 
         axios(config)
@@ -55,7 +56,7 @@ export default function Availability(props) {
                 const listedData = []
                 const username = localStorage.getItem('username');
 
-                
+
                 response.data.map((d) => {
                     const date = new Date(d.date.S.split('-')[2]
                         , d.date.S.split('-')[1] - 1
@@ -100,7 +101,7 @@ export default function Availability(props) {
                         console.log("response.data of having booking in pening status");
                         console.log(response.data);
                         // setSlotIdList(response.data);
-                        let slotIdList=response.data;
+                        let slotIdList = response.data;
 
 
                         let finalListedData = [];
@@ -108,30 +109,30 @@ export default function Availability(props) {
                         console.log(listedData);
                         console.log("List slot id having booking in pening status");
                         console.log(slotIdList);
-        
+
                         listedData.forEach(slot => {
                             let slotID = slot.id.S;
                             let isRecordExist = false;
                             console.log("Outer loop");
 
                             slotIdList.forEach(slotId => {
-                                console.log("Inner loop");    
+                                console.log("Inner loop");
 
                                 if (slotId === slotID) {
                                     console.log("Inside if");
                                     isRecordExist = true;
                                 }
                             })
-        
+
                             if (!isRecordExist) {
                                 finalListedData.push(slot);
                             }
                         })
-        
-                        
+
+
                         console.log("After filterring all slots");
                         console.log(finalListedData);
-                        setAvailability(finalListedData);    
+                        setAvailability(finalListedData);
                         setGetProcess(false);
 
                     })

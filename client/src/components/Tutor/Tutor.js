@@ -41,7 +41,7 @@ const Tutor = (props) => {
   };
 
   const onSubmitHandle = (e) => {
-    // e.preventDefault();
+    e.preventDefault();
     console.log('Submit button clicked');
     console.log(requestData);
     requestData.id = localStorage.getItem('username');
@@ -53,6 +53,11 @@ const Tutor = (props) => {
         method: 'post',
         url: SAVE_AVAILABILITY,
         headers: {
+          "Access-Control-Allow-Headers" : "Content-Type",
+          'Content-Type': 'text/plain',
+          'Access-Control-Allow-Origin' : '*',
+          "Access-Control-Allow-Credentials":"true",
+          'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         data: data,
@@ -62,7 +67,7 @@ const Tutor = (props) => {
         .then(function (response) {
           console.log('success')
           console.log(JSON.stringify(response.data));
-          // navigate('availability')
+          navigate('availability')
         })
         .catch(function (error) {
           console.log('error')
@@ -72,10 +77,10 @@ const Tutor = (props) => {
           setSubmitProcess(false);
         })
 
-      // setSubmitProcess(true)
+      setSubmitProcess(true)
       setRequestError(false)
     } else {
-      // setRequestError(true)
+      setRequestError(true)
     }
   }
 
@@ -94,7 +99,7 @@ const Tutor = (props) => {
             <TimePicker.RangePicker format={'HH:mm'} onChange={onChangeTime} />
           </section>
           <section style={{ marginTop: '2.5%' }}>
-            <Button type='primary' htmlType='submit' onClick={() => onSubmitHandle} loading={submitProcess}> Submit </Button>
+            <Button type='primary' htmlType='button' onClick={onSubmitHandle} loading={submitProcess}> Submit </Button>
             <Button style={{ marginLeft: '2.5%' }} type='primary' onClick={() => navigate('availability')}> See All Availabilities </Button>
           </section>
         </section>

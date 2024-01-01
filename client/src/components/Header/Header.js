@@ -1,16 +1,15 @@
-import pooldetails from "../usermanagement/pooldata.json";
+import { DownOutlined } from '@ant-design/icons';
 import {
-  CognitoUserPool,
   CognitoUser,
-  AmazonCognitoIdentity
+  CognitoUserPool
 } from "amazon-cognito-identity-js";
-import { DownOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, Space } from "antd";
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate} from "react-router-dom";
-import axios from 'axios';
-import { Button, Dropdown, Menu, Space } from "antd";
-import { useEffect,useState } from 'react';
+import pooldetails from "../usermanagement/pooldata.json";
 const Header = () => {
 
   const [profilePic, setProfilePic] = useState([]);
@@ -18,25 +17,25 @@ const Header = () => {
   useEffect(() => {
 
     console.log("Inside useeffect header");
-    const api = 'https://41bsajs9hj.execute-api.us-east-1.amazonaws.com/dev/get-profile-img?id='+localStorage.getItem('username');
-  axios
-  .get(api, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    },
-    crossDomain: true
-  })
-  .then((response) => {
-    console.log("res:"+response.data);
-    //localStorage.setItem('profile-img',response.data.file);
-    setProfilePic(response.data);
-    
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+    const api = 'https://ks727y03s0.execute-api.eu-north-1.amazonaws.com/Production/get-profile-img?id=' + localStorage.getItem('username');
+    axios
+      .get(api, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        crossDomain: true
+      })
+      .then((response) => {
+        console.log("res:" + response.data);
+        //localStorage.setItem('profile-img',response.data.file);
+        setProfilePic(response.data);
 
-}, [])
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+  }, [])
 
 
   const navigate = useNavigate();
@@ -75,19 +74,19 @@ const Header = () => {
   const menu = () => {
     return (
       <Menu
-      items={[
-        {
-          label: 'Availability',
-          key: '1',
-          onClick: () => { navigate('/tutor')}
-        },
-        {
-          label: 'Booking details',
-          key: '2',
-          onClick: () => { navigate('/tutor/bookings')}
-        },
-      ]}
-    />
+        items={[
+          {
+            label: 'Availability',
+            key: '1',
+            onClick: () => { navigate('/tutor') }
+          },
+          {
+            label: 'Booking details',
+            key: '2',
+            onClick: () => { navigate('/tutor/bookings') }
+          },
+        ]}
+      />
     )
   }
 
@@ -137,13 +136,13 @@ const Header = () => {
               aria-expanded="true"
             >
               <img
-              style={{
-                alignSelf: 'center',
-                height: 50,
-                width: 50,
-                borderWidth: 1,
-                borderRadius: 75
-              }}
+                style={{
+                  alignSelf: 'center',
+                  height: 50,
+                  width: 50,
+                  borderWidth: 1,
+                  borderRadius: 75
+                }}
                 alt=""
                 // src={localStorage.getItem('profile-img')}
                 src={profilePic}
